@@ -1,0 +1,9 @@
+# Ignore system files
+AppData/
+__pycache__/
+.DS_Store
+*.log
+
+# Ignore VS Code & Python virtual environments
+.vscode/
+venv/
