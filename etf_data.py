@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from etf_data import get_etf_data, format_currency, format_percentage, format_volume  # Ensure etf_data.py is in the same folder
+# Ensure etf_data.py is in the same folder
 import plotly.express as px
 
 # Page configuration
