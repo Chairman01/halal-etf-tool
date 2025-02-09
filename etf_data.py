@@ -1,29 +1,38 @@
-import streamlit as st
+import yfinance as yf
 import pandas as pd
-# Ensure etf_data.py is in the same folder
-import plotly.express as px
 
-# Page configuration
-st.set_page_config(page_title="Halal ETF Comparison Tool", page_icon="📊", layout="wide")
+def get_etf_data():
+    """Fetch Halal ETF data from Yahoo Finance."""
+    tickers = ["SPUS", "SPSK", "SPRE", "HLAL", "UMMA"]
+    data = []
 
-# Header
-st.title("🕌 Halal ETF Comparison Tool")
-st.markdown("Compare Shariah-compliant ETFs in real time.")
+    for ticker in tickers:
+        etf = yf.Ticker(ticker)
+        hist = etf.history(period="1y")
+        if hist.empty:
+            continue
 
-# Load ETF data
-try:
-    df = get_etf_data()
+        last_close = hist['Close'].iloc[-1]
+        prev_close = hist['Close'].iloc[-2]
+        percent_change = ((last_close - prev_close) / prev_close) * 100
 
-    if df.empty:
-        st.error("No ETF data available. Try again later.")
-    else:
-        # Display dataframe
-        st.dataframe(df)
+        data.append({
+            'Ticker': ticker,
+            'Price': last_close,
+            'Change (%)': round(percent_change, 2)
+        })
 
-        # Chart: ETF Performance Comparison
-        st.subheader("ETF Performance Comparison")
-        fig = px.bar(df, x='Ticker', y='YTD Return (%)', title="Year-to-Date (YTD) Return by ETF")
-        st.plotly_chart(fig)
+    return pd.DataFrame(data)
 
-except Exception as e:
-    st.error(f"Error loading ETF data: {e}")
+def format_currency(value):
+    return f"${value:,.2f}"
+
+def format_percentage(value):
+    return f"{value:.2f}%"
+
+def format_volume(value):
+    if value >= 1e6:
+        return f"{value/1e6:.1f}M"
+    elif value >= 1e3:
+        return f"{value/1e3:.1f}K"
+    return f"{value:.0f}"
