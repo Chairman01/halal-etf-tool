@@ -2,3 +2,5 @@ streamlit
 yfinance
 pandas
 plotly
+streamlit-authenticator>=0.4.1
+pyyaml
