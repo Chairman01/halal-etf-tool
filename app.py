@@ -1330,44 +1330,6 @@ else:
         for rec in recommendations[risk_tolerance]:
             st.write(f"- {rec}")
 
-        # Add a divider
-        st.markdown("---")
-        
-        # Newsletter Signup in Sidebar
-        st.markdown("## 📬 Newsletter")
-        st.markdown("""
-        Stay updated with Halal Finance:
-        - Monthly ETF updates
-        - New investment opportunities
-        - Expert insights
-        - Educational content
-        """)
-        
-        newsletter_name = st.text_input("Name", key="newsletter_name_sidebar")
-        newsletter_email = st.text_input("Email", key="newsletter_email_sidebar")
-        
-        if st.button("Subscribe", key="subscribe_sidebar"):
-            if newsletter_email and newsletter_name:
-                conn = get_db_connection()
-                cur = conn.cursor()
-                try:
-                    cur.execute('''
-                        INSERT INTO newsletter_subscribers (email, name)
-                        VALUES (%s, %s)
-                        ON DUPLICATE KEY UPDATE 
-                        name = VALUES(name),
-                        status = 'active'
-                    ''', (newsletter_email, newsletter_name))
-                    conn.commit()
-                    st.success("✅ Thanks for subscribing!")
-                except Exception as e:
-                    st.error(f"❌ Error: {str(e)}")
-                finally:
-                    cur.close()
-                    conn.close()
-            else:
-                st.warning("Please fill in both fields")
-
     def claim_subscription():
         st.subheader("Claim Your Subscription")
         st.write("If you made a payment with a different email, you can claim it here.")

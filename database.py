@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 import bcrypt
 from datetime import datetime, timedelta
+import streamlit as st
 
 # Load environment variables
 load_dotenv()
@@ -39,23 +40,21 @@ print(f"database: '{DB_CONFIG['database']}'")
 print(f"password length: {len(DB_CONFIG['password'] or '')}")
 
 def get_db_connection():
+    """Get database connection with fallback options"""
     try:
-        # Print connection details (remove in production)
-        print("Attempting to connect with settings:")
-        print(f"Host: {os.getenv('DB_HOST', 'localhost')}")
-        print(f"User: {os.getenv('DB_USER', 'halal_user')}")
-        print(f"Database: {os.getenv('DB_NAME', 'halal_etf_db')}")
-        
+        # Try Streamlit Cloud secrets first
         conn = mysql.connector.connect(
-            host=os.getenv('DB_HOST', 'localhost'),
-            user=os.getenv('DB_USER', 'halal_user'),
-            password=os.getenv('DB_PASSWORD'),
-            database=os.getenv('DB_NAME', 'halal_etf_db')
+            host=st.secrets.get("mysql", {}).get("host", os.getenv('DB_HOST')),
+            user=st.secrets.get("mysql", {}).get("user", os.getenv('DB_USER')),
+            password=st.secrets.get("mysql", {}).get("password", os.getenv('DB_PASSWORD')),
+            database=st.secrets.get("mysql", {}).get("database", os.getenv('DB_NAME')),
+            ssl_ca="/etc/ssl/certs/ca-certificates.crt",  # Add SSL configuration
+            ssl_verify_identity=True
         )
-        print("Connection successful!")
+        print("✅ Database connected successfully")
         return conn
-    except Error as e:
-        print(f"Error connecting to MySQL: {e}")
+    except Exception as e:
+        print(f"❌ Database connection error: {e}")
         raise e
 
 def init_db():
